@@ -7,19 +7,19 @@
     tools:context=".Settings">
 
     <Button
-        android:id="@+id/settings_back"
+        android:id="@+id/settings_first"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Поменять номер первой кнопки"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:id="@+id/settings_change"
+        android:id="@+id/settings_second"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Button"
+        android:text="Поменять номер второй кнопки"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/settings_back" />
+        app:layout_constraintTop_toBottomOf="@+id/settings_first" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

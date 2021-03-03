@@ -13,7 +13,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Opener">
-        <activity android:name=".Settings"></activity>
 
         <service
             android:name=".openerService"

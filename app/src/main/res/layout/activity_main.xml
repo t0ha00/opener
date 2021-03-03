@@ -4,7 +4,10 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="#DADADA"
     tools:context=".MainActivity">
+
+
 
     <Button
         android:id="@+id/button"
@@ -14,6 +17,7 @@
         android:layout_marginRight="10dp"
         android:layout_marginBottom="35dp"
         android:text="Button"
+        android:backgroundTint="#24424C"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent" />
@@ -27,6 +31,7 @@
         android:layout_marginRight="10dp"
         android:layout_marginBottom="15dp"
         android:text="Button"
+        android:backgroundTint="#24424C"
         app:layout_constraintBottom_toTopOf="@+id/button"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -40,18 +45,10 @@
         android:layout_marginTop="300dp"
         android:layout_marginRight="10dp"
         android:text="Button"
+        android:backgroundTint="#24424C"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/buttonSettings"
-        android:layout_width="60dp"
-        android:layout_height="60dp"
-        android:layout_marginTop="10dp"
-        android:layout_marginEnd="10dp"
-        android:layout_marginRight="10dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@android:drawable/ic_notification_overlay" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>

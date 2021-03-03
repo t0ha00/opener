@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize"
+    android:background="#24424C"
+    android:id="@+id/myToolbar"
+    >
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:id="@+id/addBtn"
+            android:visibility="gone"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_baseline_add_24"/>
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:id="@+id/delBtn"
+            android:layout_toEndOf="@+id/addBtn"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            android:src="@drawable/ic_baseline_horizontal_rule_24"
+            android:layout_toRightOf="@+id/addBtn" />
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/settBtn"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_baseline_settings_24"
+            android:layout_alignParentRight="true"
+            android:padding="16dp"/>
+    </RelativeLayout>
+
+</RelativeLayout>

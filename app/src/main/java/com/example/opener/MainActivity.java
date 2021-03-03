@@ -23,12 +23,13 @@ import java.security.Provider;
 
 public class MainActivity extends AppCompatActivity {
 
-    String tel1, tel2, tel3;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
+        ImageView settBtn = findViewById(R.id.settBtn);
+        ImageView addBtn = findViewById(R.id.addBtn);
+        ImageView delBtn = findViewById(R.id.delBtn);
         SQLiteDatabase myDB =
                 openOrCreateDatabase("my.db", MODE_PRIVATE, null);
 
@@ -42,9 +43,6 @@ public class MainActivity extends AppCompatActivity {
         myDB.insert("tel", null, row1);
         myDB.close();
 
-
-
-
         Button btn1 = findViewById(R.id.button);
         Button btn2 = findViewById(R.id.button2);
         Button btn3 = findViewById(R.id.button3);
@@ -54,18 +52,37 @@ public class MainActivity extends AppCompatActivity {
             ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE}, 1);
         }
 
+        settBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (addBtn.getVisibility() == View.GONE && delBtn.getVisibility() == View.GONE)
+                {
+                    addBtn.setVisibility(View.VISIBLE);
+                    delBtn.setVisibility(View.VISIBLE);
+                }
+                else
+                {
+                    addBtn.setVisibility(View.GONE);
+                    delBtn.setVisibility(View.GONE);
+                }
+            }
+        });
+
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                     //startService(new Intent(MainActivity.this, openerService.class));
+                int telPhone = 0;
                 SQLiteDatabase myDB =
                         openOrCreateDatabase("my.db", MODE_PRIVATE, null);
                 Cursor myCursor =
-                        myDB.rawQuery("select * from tel;", null);
+                        myDB.rawQuery("select number from tel where btn = 1;", null);
+                while(myCursor.moveToNext()) {
+                    telPhone = myCursor.getInt(0);
+                }
 
-
-                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7"+myCursor.getInt(0))));
+                startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7"+telPhone )));
                 myCursor.close();
             }
 
@@ -75,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                    // startService(new Intent(MainActivity.this, openerService.class));
-                    startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7"+tel2)));}
+                    startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));}
 
         });
 
@@ -83,7 +100,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                   //  startService(new Intent(MainActivity.this, openerService.class));
-                    startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7"+tel3)));}
+                    startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));}
         });
     }
 }

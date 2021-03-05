@@ -23,6 +23,7 @@ import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.RotateAnimation;
+import android.view.animation.ScaleAnimation;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.EditText;
@@ -35,7 +36,10 @@ import java.security.Provider;
 
 public class MainActivity extends AppCompatActivity {
     boolean touched;
-
+    SQLiteDatabase myDB ;
+    Button btn1 ;
+    Button btn2 ;
+    Button btn3 ;
 
 
     @Override
@@ -46,47 +50,17 @@ public class MainActivity extends AppCompatActivity {
         ImageView settBtn = findViewById(R.id.settBtn);
         ImageView addBtn = findViewById(R.id.addBtn);
         ImageView delBtn = findViewById(R.id.delBtn);
-        Button btn1 = findViewById(R.id.button3);
-        Button btn2 = findViewById(R.id.button2);
-        Button btn3 = findViewById(R.id.button1);
-        SQLiteDatabase myDB =
-                openOrCreateDatabase("new.db", MODE_PRIVATE, null);
+        ImageView superDelBtn = findViewById(R.id.superDelBtn);
+        btn1 = findViewById(R.id.button3);
+        btn2 = findViewById(R.id.button2);
+        btn3 = findViewById(R.id.button1);
 
-
-        //myDB.delete("tel2", null, null);
-
+        myDB =openOrCreateDatabase("new.db", MODE_PRIVATE, null);
         myDB.execSQL(
                 "CREATE TABLE IF NOT EXISTS tel2 (number CHAR(10), btn CHAR(25), btnnum CHAR(3))"
         );
 
-
-        Cursor cursor = myDB.rawQuery("select * from tel2",null);
-        cursor.moveToFirst();
-        if (cursor.getCount() == 1){
-            btn1.setVisibility(View.VISIBLE);
-            btn1.setText(cursor.getString(1));
-        }
-        if (cursor.getCount() == 2){
-            cursor.moveToFirst();
-            btn1.setText(cursor.getString(1));
-            cursor.moveToNext();
-            btn2.setText(cursor.getString(1));
-            btn1.setVisibility(View.VISIBLE);
-            btn2.setVisibility(View.VISIBLE);
-        }
-        if (cursor.getCount() == 3){
-            cursor.moveToFirst();
-            btn1.setText(cursor.getString(1));
-            cursor.moveToNext();
-            btn2.setText(cursor.getString(1));
-            cursor.moveToNext();
-            btn3.setText(cursor.getString(1));
-            btn1.setVisibility(View.VISIBLE);
-            btn2.setVisibility(View.VISIBLE);
-            btn3.setVisibility(View.VISIBLE);
-        }
-        cursor.close();
-
+        loadFromBD();
 
         if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.CALL_PHONE) == PackageManager.PERMISSION_DENIED){
             ActivityCompat.requestPermissions(MainActivity.this, new String[] {Manifest.permission.CALL_PHONE}, 1);
@@ -113,6 +87,13 @@ public class MainActivity extends AppCompatActivity {
                 //a.setRepeatCount(-1);
                 rotateAnimOp.setDuration(1500);
                 rotateAnimCl.setDuration(1500);
+                if (touched) {
+                    touched = false;
+                    Animation outAnim = new TranslateAnimation(0.0f,-400.0f,0.0f,0.0f);
+                    outAnim.setDuration(500);
+                    superDelBtn.startAnimation(outAnim);
+                    superDelBtn.setVisibility(View.GONE);
+                }
 
                 if (addBtn.getVisibility() == View.GONE && delBtn.getVisibility() == View.GONE)
                 {
@@ -128,12 +109,10 @@ public class MainActivity extends AppCompatActivity {
 
                         @Override
                         public void onAnimationEnd(Animation animation) {
-
                         }
 
                         @Override
                         public void onAnimationRepeat(Animation animation) {
-
                         }
                     });
                 }
@@ -260,11 +239,51 @@ public class MainActivity extends AppCompatActivity {
         delBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Animation inAnim = new TranslateAnimation(-400.0f,0.0f,0.0f,0.0f);
+                inAnim.setDuration(500);
+                Animation outAnim = new TranslateAnimation(0.0f,-400.0f,0.0f,0.0f);
+                outAnim.setDuration(500);
                 if (!touched){
                     touched = true;
+                    superDelBtn.startAnimation(inAnim);
+                    superDelBtn.setVisibility(View.VISIBLE);
                 } else {
                     touched = false;
+                    superDelBtn.startAnimation(outAnim);
+                    superDelBtn.setVisibility(View.GONE);
                 }
+            }
+        });
+
+        superDelBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Cursor cursor = myDB.rawQuery("select * from tel2",null);
+                AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+                builder
+                        .setTitle("Внимание")
+                        .setMessage("Действительно удалить ВСЕ кнопки?");
+                builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        myDB.delete("tel2", null, null);
+                        myDB.execSQL(
+                                "CREATE TABLE IF NOT EXISTS tel2 (number CHAR(10), btn CHAR(25), btnnum CHAR(3))"
+                        );
+                        cursor.moveToFirst();
+
+                        delBtnAnim(btn1,"",true);
+                        delBtnAnim(btn2,"",true);
+                        delBtnAnim(btn3,"",true);
+                    }
+                });
+                builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.cancel();
+                    }
+                });
+                AlertDialog dialog = builder.create();
+                dialog.show();
+
             }
         });
 
@@ -272,19 +291,18 @@ public class MainActivity extends AppCompatActivity {
         btn3.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!touched){
-                    //startService(new Intent(MainActivity.this, openerService.class));
                 Cursor cursor = myDB.rawQuery("select * from tel2",null);
                 cursor.moveToFirst();
                 cursor.moveToNext();
                 cursor.moveToNext();
                 String text = cursor.getString(0);
+                if (!touched){
+                    //startService(new Intent(MainActivity.this, openerService.class));
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
                 cursor.close();
             }
             else {
-                btn3.setVisibility(View.GONE);
-                myDB.delete("tel2","btnnum="+3,null);
+                delBtnAnim(btn3,text,false);
             }}
 
         });
@@ -292,19 +310,18 @@ public class MainActivity extends AppCompatActivity {
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!touched){
-                   // startService(new Intent(MainActivity.this, openerService.class));
-                    //startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));
                 Cursor cursor = myDB.rawQuery("select * from tel2",null);
                 cursor.moveToFirst();
                 cursor.moveToNext();
                 String text = cursor.getString(0);
+                if (!touched){
+                   // startService(new Intent(MainActivity.this, openerService.class));
+                    //startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
                 cursor.close();
             }
                 else {
-                    btn2.setVisibility(View.GONE);
-                    myDB.delete("tel2","btnnum="+2,null);
+                    delBtnAnim(btn2,text,false);
                 }}
 
         });
@@ -312,20 +329,83 @@ public class MainActivity extends AppCompatActivity {
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!touched){
-                  //  startService(new Intent(MainActivity.this, openerService.class));
-                  //  startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));
                 Cursor cursor = myDB.rawQuery("select * from tel2",null);
                 cursor.moveToFirst();
                 String text = cursor.getString(0);
+                if (!touched){
+                  //  startService(new Intent(MainActivity.this, openerService.class));
+                  //  startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));
                 Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
                 cursor.close();
                 }
                 else {
-                    btn1.setVisibility(View.GONE);
-                    myDB.delete("tel2","btnnum="+1,null);
+                    delBtnAnim(btn1,text,false);
             }}
         });
+    }
+
+    void loadFromBD (){
+        btn1 = findViewById(R.id.button3);
+        btn2 = findViewById(R.id.button2);
+        btn3 = findViewById(R.id.button1);
+        Cursor cursor = myDB.rawQuery("select * from tel2",null);
+        if (cursor.getCount() == 1){
+            cursor.moveToFirst();
+            btn1.setVisibility(View.VISIBLE);
+            btn2.setVisibility(View.GONE);
+            btn3.setVisibility(View.GONE);
+            btn1.setText(cursor.getString(1));
+        }
+        if (cursor.getCount() == 2){
+            cursor.moveToFirst();
+            btn1.setText(cursor.getString(1));
+            cursor.moveToNext();
+            btn2.setText(cursor.getString(1));
+            btn1.setVisibility(View.VISIBLE);
+            btn2.setVisibility(View.VISIBLE);
+            btn3.setVisibility(View.GONE);
+        }
+        if (cursor.getCount() == 3){
+            cursor.moveToFirst();
+            btn1.setText(cursor.getString(1));
+            cursor.moveToNext();
+            btn2.setText(cursor.getString(1));
+            cursor.moveToNext();
+            btn3.setText(cursor.getString(1));
+            btn1.setVisibility(View.VISIBLE);
+            btn2.setVisibility(View.VISIBLE);
+            btn3.setVisibility(View.VISIBLE);
+        }
+        cursor.close();
+    }
+
+    void delBtnAnim (Button btn, String text,boolean multi){
+
+        Animation inAnim = new ScaleAnimation(1f, 0f,1f, 0f, Animation.RELATIVE_TO_SELF,0.5f, Animation.RELATIVE_TO_SELF,0.5f);
+        inAnim.setDuration(700);
+        btn.startAnimation(inAnim);
+        if (!multi) {
+            inAnim.setAnimationListener(new Animation.AnimationListener() {
+                @Override
+                public void onAnimationStart(Animation animation) {
+                }
+
+                @Override
+                public void onAnimationEnd(Animation animation) {
+                    btn.setVisibility(View.GONE);
+                    myDB.delete("tel2", "number=" + text, null);
+                    loadFromBD();
+                }
+
+                @Override
+                public void onAnimationRepeat(Animation animation) {
+                }
+            });
+        }
+        else {
+            btn.startAnimation(inAnim);
+            btn.setVisibility(View.GONE);
+        }
     }
 
 }

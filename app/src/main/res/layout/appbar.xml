@@ -35,6 +35,17 @@
             android:src="@drawable/ic_baseline_settings_24"
             android:layout_alignParentRight="true"
             android:padding="16dp"/>
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:id="@+id/superDelBtn"
+            android:layout_toEndOf="@+id/delBtn"
+            android:layout_centerVertical="true"
+            android:visibility="gone"
+            android:src="@drawable/ic_baseline_delete_24"
+            android:layout_toRightOf="@+id/addBtn"/>
     </RelativeLayout>
 
 </RelativeLayout>

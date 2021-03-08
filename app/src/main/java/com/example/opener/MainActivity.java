@@ -270,10 +270,17 @@ public class MainActivity extends AppCompatActivity {
                                 "CREATE TABLE IF NOT EXISTS tel2 (number CHAR(10), btn CHAR(25), btnnum CHAR(3))"
                         );
                         cursor.moveToFirst();
-
+                        if (cursor.getCount() == 1){
+                            delBtnAnim(btn1,"",true);
+                        }
+                        else if (cursor.getCount() == 2 ){
+                            delBtnAnim(btn1,"",true);
+                            delBtnAnim(btn2,"",true);
+                        }
+                        else {
                         delBtnAnim(btn1,"",true);
                         delBtnAnim(btn2,"",true);
-                        delBtnAnim(btn3,"",true);
+                        delBtnAnim(btn3,"",true);}
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -297,9 +304,10 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToNext();
                 String text = cursor.getString(0);
                 if (!touched){
-                    //startService(new Intent(MainActivity.this, openerService.class));
-                Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
-                cursor.close();
+                    startService(new Intent(MainActivity.this, openerService.class));
+                    callToOpen(text);
+
+                    cursor.close();
             }
             else {
                 delBtnAnim(btn3,text,false);
@@ -315,10 +323,9 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToNext();
                 String text = cursor.getString(0);
                 if (!touched){
-                   // startService(new Intent(MainActivity.this, openerService.class));
-                    //startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));
-                Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
-                cursor.close();
+                    startService(new Intent(MainActivity.this, openerService.class));
+                    callToOpen(text);
+                    cursor.close();
             }
                 else {
                     delBtnAnim(btn2,text,false);
@@ -333,10 +340,9 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToFirst();
                 String text = cursor.getString(0);
                 if (!touched){
-                  //  startService(new Intent(MainActivity.this, openerService.class));
-                  //  startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7")));
-                Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
-                cursor.close();
+                    startService(new Intent(MainActivity.this, openerService.class));
+                    callToOpen(text);
+                    cursor.close();
                 }
                 else {
                     delBtnAnim(btn1,text,false);
@@ -406,6 +412,13 @@ public class MainActivity extends AppCompatActivity {
             btn.startAnimation(inAnim);
             btn.setVisibility(View.GONE);
         }
+    }
+
+    void callToOpen (String text){
+        startService(new Intent(MainActivity.this, openerService.class));
+        startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7"+text)));
+        //Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
+
     }
 
 }

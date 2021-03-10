@@ -15,6 +15,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -37,10 +38,7 @@ import java.security.Provider;
 public class MainActivity extends AppCompatActivity {
     boolean touched;
     SQLiteDatabase myDB ;
-    Button btn1 ;
-    Button btn2 ;
-    Button btn3 ;
-
+    Button btn1, btn2, btn3 ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,6 +148,7 @@ public class MainActivity extends AppCompatActivity {
                 mDialogBuilder.setView(alertView);
                 TextInputLayout nameText = (TextInputLayout) alertView.findViewById(R.id.input_name);
                 TextInputLayout numberText = (TextInputLayout) alertView.findViewById(R.id.input_number);
+                ImageView contactBtn = (ImageView) alertView.findViewById(R.id.contact_btn);
 
                 mDialogBuilder
                         .setPositiveButton("OK", null)
@@ -160,6 +159,7 @@ public class MainActivity extends AppCompatActivity {
                     public void onShow(DialogInterface dialog) {
                         Button buttonP = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
                         Button buttonN = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
+
                         buttonP.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -230,6 +230,14 @@ public class MainActivity extends AppCompatActivity {
                                 dialog.cancel();
                             }
                         });
+                        contactBtn.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                Intent intent = new Intent(MainActivity.this, Contacts.class);
+                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                startActivity(intent);
+                            }
+                        });
                     }
                 });
                 alertDialog.show();
@@ -278,9 +286,9 @@ public class MainActivity extends AppCompatActivity {
                             delBtnAnim(btn2,"",true);
                         }
                         else {
-                        delBtnAnim(btn1,"",true);
-                        delBtnAnim(btn2,"",true);
-                        delBtnAnim(btn3,"",true);}
+                            delBtnAnim(btn1,"",true);
+                            delBtnAnim(btn2,"",true);
+                            delBtnAnim(btn3,"",true);}
                     }
                 });
                 builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -348,6 +356,8 @@ public class MainActivity extends AppCompatActivity {
                     delBtnAnim(btn1,text,false);
             }}
         });
+
+
     }
 
     void loadFromBD (){

@@ -1,23 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dp">
 
-    <com.google.android.material.textfield.TextInputLayout
-        android:id="@+id/input_name"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/layout_name"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Название"
-        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
+        android:layout_height="wrap_content">
 
-    <com.google.android.material.textfield.TextInputEditText
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:inputType="textEmailAddress"/>
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/input_name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:hint="Название">
 
-    </com.google.android.material.textfield.TextInputLayout>
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:inputType="textEmailAddress" />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:id="@+id/contact_btn"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:src="@drawable/ic_baseline_perm_contact_calendar_24"
+            app:layout_constraintBottom_toBottomOf="@+id/input_name"
+            app:layout_constraintEnd_toEndOf="@+id/input_name"
+            app:layout_constraintTop_toTopOf="@+id/input_name" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/input_number"
@@ -33,8 +49,6 @@
             android:inputType="phone"/>
 
     </com.google.android.material.textfield.TextInputLayout>
-
-
 
 
 

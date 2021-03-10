@@ -6,6 +6,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
 import android.Manifest;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.ContentValues;
@@ -18,6 +19,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.media.Image;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.animation.AlphaAnimation;
@@ -39,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
     boolean touched;
     SQLiteDatabase myDB ;
     Button btn1, btn2, btn3 ;
+    final int PICK_CONTACT = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -159,7 +162,8 @@ public class MainActivity extends AppCompatActivity {
                     public void onShow(DialogInterface dialog) {
                         Button buttonP = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_POSITIVE);
                         Button buttonN = ((AlertDialog) dialog).getButton(AlertDialog.BUTTON_NEGATIVE);
-
+                        Cursor cursor = myDB.rawQuery("select * from tel2",null);
+                        cursor.moveToFirst();
                         buttonP.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
@@ -176,50 +180,16 @@ public class MainActivity extends AppCompatActivity {
                                     nameText.setError("Не больше 25 символов");
                                 }
                                 else{
-                                    Cursor cursor = myDB.rawQuery("select * from tel2",null);
-                                    cursor.moveToFirst();
-                                    if (cursor.getCount() == 0) {
-                                        ContentValues row1 = new ContentValues();
-                                        row1.put("number", numberText.getEditText().getText().toString());
-                                        row1.put("btn", nameText.getEditText().getText().toString());
-                                        row1.put("btnnum", "1");
-                                        myDB.insert("tel2", null, row1);
-                                        cursor.close();
+
+                                    if (cursor.getCount() < 3){
+                                        String number = numberText.getEditText().getText().toString();
+                                        String name = nameText.getEditText().getText().toString();
+                                        createBtn(number,name);
                                         dialog.cancel();
-                                        btn1.setVisibility(View.VISIBLE);
-                                        btn1.setText(nameText.getEditText().getText().toString());
                                     }
                                     else {
-                                        cursor.moveToNext();
-                                        if (cursor.getCount() == 1){
-                                            ContentValues row1 = new ContentValues();
-                                            row1.put("number", numberText.getEditText().getText().toString());
-                                            row1.put("btn", nameText.getEditText().getText().toString());
-                                            row1.put("btnnum", "2");
-                                            myDB.insert("tel2", null, row1);
-                                            cursor.close();
-                                            dialog.cancel();
-                                            btn2.setVisibility(View.VISIBLE);
-                                            btn2.setText(nameText.getEditText().getText().toString());
-                                        }
-                                        else {
-                                            cursor.moveToNext();
-                                            if (cursor.getCount() == 2){
-                                                ContentValues row1 = new ContentValues();
-                                                row1.put("number", numberText.getEditText().getText().toString());
-                                                row1.put("btn", nameText.getEditText().getText().toString());
-                                                row1.put("btnnum", "3");
-                                                myDB.insert("tel2", null, row1);
-                                                cursor.close();
-                                                dialog.cancel();
-                                                btn3.setVisibility(View.VISIBLE);
-                                                btn3.setText(nameText.getEditText().getText().toString());
-                                            } else
-                                            {
-                                                nameText.setError("Максимум 3 Кнопки на экране");
-                                                numberText.setError("Максимум 3 кнопки на экране");
-                                            }
-                                        }
+                                        nameText.setError("Максимум 3 Кнопки на экране");
+                                        numberText.setError("Максимум 3 кнопки на экране");
                                     }
                                 }
                             }
@@ -233,16 +203,25 @@ public class MainActivity extends AppCompatActivity {
                         contactBtn.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View v) {
-                                Intent intent = new Intent(MainActivity.this, Contacts.class);
-                                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                                startActivity(intent);
+                                if (cursor.getCount() < 3) {
+                                    Intent intent = new Intent(Intent.ACTION_PICK, ContactsContract.Contacts.CONTENT_URI);
+                                    startActivityForResult(intent, PICK_CONTACT);
+                                    dialog.cancel();
+                                }
+                                else
+                                {
+                                    nameText.setError("Максимум 3 Кнопки на экране");
+                                    numberText.setError("Максимум 3 кнопки на экране");
+                                }
                             }
                         });
+                        cursor.close();
                     }
                 });
                 alertDialog.show();
             }
         });
+
 
         delBtn.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -312,7 +291,7 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToNext();
                 String text = cursor.getString(0);
                 if (!touched){
-                    startService(new Intent(MainActivity.this, openerService.class));
+                    //startService(new Intent(MainActivity.this, openerService.class));
                     callToOpen(text);
 
                     cursor.close();
@@ -331,7 +310,7 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToNext();
                 String text = cursor.getString(0);
                 if (!touched){
-                    startService(new Intent(MainActivity.this, openerService.class));
+                    //startService(new Intent(MainActivity.this, openerService.class));
                     callToOpen(text);
                     cursor.close();
             }
@@ -348,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToFirst();
                 String text = cursor.getString(0);
                 if (!touched){
-                    startService(new Intent(MainActivity.this, openerService.class));
+                    //startService(new Intent(MainActivity.this, openerService.class));
                     callToOpen(text);
                     cursor.close();
                 }
@@ -359,6 +338,35 @@ public class MainActivity extends AppCompatActivity {
 
 
     }
+
+    @Override
+    public void onActivityResult(int reqCode, int resultCode, Intent data) {
+        super.onActivityResult(reqCode, resultCode, data);
+        String phoneNumber = "0";
+        switch (reqCode) {
+            case (PICK_CONTACT) :
+                if (resultCode == Activity.RESULT_OK) {
+                    Uri contactData = data.getData();
+                    Cursor c =  getContentResolver().query(contactData, null, null, null, null);
+                    if (c.moveToFirst()) {
+                        String name = c.getString(c.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+                        int hasPhoneNumber = Integer.parseInt(c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
+                        if (hasPhoneNumber > 0) {
+                            //This is to read multiple phone numbers associated with the same contact
+                            Cursor phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{c.getString(c.getColumnIndex(ContactsContract.Contacts._ID))}, null);
+                            while (phoneCursor.moveToNext()) {
+                                phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
+                            }
+                            phoneCursor.close();
+                            createBtn(phoneNumber,name);
+                        //Toast.makeText(getApplicationContext(), phoneNumber, Toast.LENGTH_SHORT).show();
+                    }
+                }
+                break;
+            }
+        }
+    }
+
 
     void loadFromBD (){
         btn1 = findViewById(R.id.button3);
@@ -424,10 +432,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    void createBtn(String number, String name){
+        Cursor cursor = myDB.rawQuery("select * from tel2",null);
+        cursor.moveToFirst();
+        if (cursor.getCount() == 0) {
+            ContentValues row1 = new ContentValues();
+            row1.put("number", number);
+            row1.put("btn", name);
+            row1.put("btnnum", "1");
+            myDB.insert("tel2", null, row1);
+            cursor.close();
+            btn1.setVisibility(View.VISIBLE);
+            btn1.setText(name);
+        }
+        else {
+            cursor.moveToNext();
+            if (cursor.getCount() == 1){
+                ContentValues row1 = new ContentValues();
+                row1.put("number", number);
+                row1.put("btn", name);
+                row1.put("btnnum", "2");
+                myDB.insert("tel2", null, row1);
+                cursor.close();
+                btn2.setVisibility(View.VISIBLE);
+                btn2.setText(name);
+            }
+            else {
+                cursor.moveToNext();
+                if (cursor.getCount() == 2){
+                    ContentValues row1 = new ContentValues();
+                    row1.put("number", number);
+                    row1.put("btn", name);
+                    row1.put("btnnum", "3");
+                    myDB.insert("tel2", null, row1);
+                    cursor.close();
+                    btn3.setVisibility(View.VISIBLE);
+                    btn3.setText(name);
+                }
+            }
+        }
+    }
+
     void callToOpen (String text){
-        startService(new Intent(MainActivity.this, openerService.class));
-        startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:+7"+text)));
-        //Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
+//        startService(new Intent(MainActivity.this, openerService.class));
+//        startActivity(new Intent(Intent.ACTION_CALL, Uri.parse("tel:"+text)));
+        Toast.makeText(getApplicationContext(),text,Toast.LENGTH_SHORT).show();
 
     }
 

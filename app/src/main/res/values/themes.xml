@@ -5,7 +5,7 @@
         <!-- Primary brand color. -->
         DADADA
         <item name="colorPrimary">#DADADA</item>
-        <item name="colorPrimaryVariant">#24424C</item>
+        <item name="colorSecondary">#24424C</item>
         <!-- Secondary brand color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->

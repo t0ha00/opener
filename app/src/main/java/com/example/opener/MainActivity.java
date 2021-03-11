@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         myDB =openOrCreateDatabase("new.db", MODE_PRIVATE, null);
         myDB.execSQL(
-                "CREATE TABLE IF NOT EXISTS tel2 (number CHAR(10), btn CHAR(25), btnnum CHAR(3))"
+                "CREATE TABLE IF NOT EXISTS tel2 (number CHAR(25), btn CHAR(25), btnnum CHAR(3))"
         );
 
         loadFromBD();
@@ -170,7 +170,7 @@ public class MainActivity extends AppCompatActivity {
                                 if (nameText.getEditText().getText().length()<1){
                                     nameText.setError("Поле не может быть пустым");
                                     if (numberText.getEditText().getText().length()<1){
-                                        numberText.setError("Это тоже");
+                                        numberText.setError("Поле не может быть пустым");
                                     }
                                 }
                                 else if (numberText.getEditText().getText().length()<1){
@@ -188,8 +188,8 @@ public class MainActivity extends AppCompatActivity {
                                         dialog.cancel();
                                     }
                                     else {
-                                        nameText.setError("Максимум 3 Кнопки на экране");
-                                        numberText.setError("Максимум 3 кнопки на экране");
+                                        nameText.setError("Максимум 3 кнопки на экране");
+                                        numberText.setError("Удалите несколько, что-бы продолжить");
                                     }
                                 }
                             }
@@ -210,8 +210,8 @@ public class MainActivity extends AppCompatActivity {
                                 }
                                 else
                                 {
-                                    nameText.setError("Максимум 3 Кнопки на экране");
-                                    numberText.setError("Максимум 3 кнопки на экране");
+                                    nameText.setError("Максимум 3 кнопки на экране");
+                                    numberText.setError("Удалите несколько, что-бы продолжить");
                                 }
                             }
                         });
@@ -232,10 +232,16 @@ public class MainActivity extends AppCompatActivity {
                 outAnim.setDuration(500);
                 if (!touched){
                     touched = true;
+                    btn1.setBackgroundColor(getResources().getColor(R.color.red));
+                    btn2.setBackgroundColor(getResources().getColor(R.color.red));
+                    btn3.setBackgroundColor(getResources().getColor(R.color.red));
                     superDelBtn.startAnimation(inAnim);
                     superDelBtn.setVisibility(View.VISIBLE);
                 } else {
                     touched = false;
+                    btn1.setBackgroundColor(getResources().getColor(R.color.myclr));
+                    btn2.setBackgroundColor(getResources().getColor(R.color.myclr));
+                    btn3.setBackgroundColor(getResources().getColor(R.color.myclr));
                     superDelBtn.startAnimation(outAnim);
                     superDelBtn.setVisibility(View.GONE);
                 }
@@ -290,11 +296,10 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToNext();
                 cursor.moveToNext();
                 String text = cursor.getString(0);
+                cursor.close();
                 if (!touched){
                     //startService(new Intent(MainActivity.this, openerService.class));
                     callToOpen(text);
-
-                    cursor.close();
             }
             else {
                 delBtnAnim(btn3,text,false);
@@ -309,10 +314,10 @@ public class MainActivity extends AppCompatActivity {
                 cursor.moveToFirst();
                 cursor.moveToNext();
                 String text = cursor.getString(0);
+                cursor.close();
                 if (!touched){
                     //startService(new Intent(MainActivity.this, openerService.class));
                     callToOpen(text);
-                    cursor.close();
             }
                 else {
                     delBtnAnim(btn2,text,false);
@@ -326,10 +331,11 @@ public class MainActivity extends AppCompatActivity {
                 Cursor cursor = myDB.rawQuery("select * from tel2",null);
                 cursor.moveToFirst();
                 String text = cursor.getString(0);
+                cursor.close();
                 if (!touched){
                     //startService(new Intent(MainActivity.this, openerService.class));
                     callToOpen(text);
-                    cursor.close();
+
                 }
                 else {
                     delBtnAnim(btn1,text,false);
@@ -342,7 +348,6 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int reqCode, int resultCode, Intent data) {
         super.onActivityResult(reqCode, resultCode, data);
-        String phoneNumber = "0";
         switch (reqCode) {
             case (PICK_CONTACT) :
                 if (resultCode == Activity.RESULT_OK) {
@@ -353,12 +358,14 @@ public class MainActivity extends AppCompatActivity {
                         int hasPhoneNumber = Integer.parseInt(c.getString(c.getColumnIndex(ContactsContract.Contacts.HAS_PHONE_NUMBER)));
                         if (hasPhoneNumber > 0) {
                             //This is to read multiple phone numbers associated with the same contact
+                            String phoneNumber = null;
                             Cursor phoneCursor = getContentResolver().query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, null, ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[]{c.getString(c.getColumnIndex(ContactsContract.Contacts._ID))}, null);
                             while (phoneCursor.moveToNext()) {
                                 phoneNumber = phoneCursor.getString(phoneCursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
                             }
                             phoneCursor.close();
-                            createBtn(phoneNumber,name);
+                            String parsedNumber = phoneNumber.replaceAll("[^0-9]","");
+                            createBtn(parsedNumber,name);
                         //Toast.makeText(getApplicationContext(), phoneNumber, Toast.LENGTH_SHORT).show();
                     }
                 }
